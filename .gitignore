@@ -1,0 +1,33 @@
+# Node / frontend
+apps/frontend/node_modules/
+apps/frontend/.next/
+apps/frontend/.env.local
+apps/frontend/.pnpm-lock.yaml
+apps/frontend/dist/
+
+# Backend / Python
+apps/backend/__pycache__/
+apps/backend/*.pyc
+apps/backend/*.pyo
+apps/backend/env/
+apps/backend/*.db
+
+# Workers
+apps/workers/__pycache__/
+apps/workers/*.pyc
+apps/workers/*.db
+
+# Packages
+packages/**/__pycache__/
+packages/**/*.pyc
+
+# Logs
+*.log
+
+# OS / misc
+.DS_Store
+Thumbs.db
+
+# Global env files
+.env
+.env.*
