@@ -1,6 +1,9 @@
 # Next.js build
 apps/frontend/.next/
 
+echo "*.pyc" >> .gitignore
+git add .gitignore
+git commit -m "Ignore compiled Python files"
 
 
 # -----------------------------
