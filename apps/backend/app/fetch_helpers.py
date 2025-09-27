@@ -14,21 +14,23 @@ def fetch_news_helper(topic: str = "AI", limit: int = 5, do_embed: bool = True):
     if not NEWS_API_KEY:
         raise HTTPException(status_code=500, detail="NEWS_API_KEY not set")
 
-    url = f"https://newsapi.org/v2/everything?q={topic}&apiKey={NEWS_API_KEY}"
+    url = f"https://newsapi.org/v2/everything?q={topic}&language=en&sortBy=publishedAt&pageSize={limit}&apiKey={NEWS_API_KEY}"
     try:
-        resp = requests.get(url, timeout=10).json()
-    except requests.RequestException as e:
+        resp = requests.get(url, timeout=10)
+        resp.raise_for_status()
+        data = resp.json()
+    except Exception as e:
         logger.warning(f"⚠️ NewsAPI request failed: {e}")
         return []
 
-    if resp.get("status") != "ok":
-        logger.warning(f"⚠️ NewsAPI error: {resp}")
+    if data.get("status") != "ok":
+        logger.warning(f"⚠️ NewsAPI error: {data}")
         return []
 
     articles = []
-    for i, art in enumerate(resp.get("articles", [])[:limit]):
-        title = art.get("title") or ""
-        desc = art.get("description") or ""
+    for i, art in enumerate(data.get("articles", [])[:limit]):
+        title = art.get("title", "")
+        desc = art.get("description", "")
         text = f"{title} {desc}".strip()
         if not text:
             continue
@@ -56,19 +58,21 @@ def fetch_stock_helper(symbol: str = "AAPL", limit: int = 5, do_embed: bool = Tr
 
     url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&apikey={ALPHA_KEY}"
     try:
-        resp = requests.get(url, timeout=10).json()
-    except requests.RequestException as e:
+        resp = requests.get(url, timeout=10)
+        resp.raise_for_status()
+        data = resp.json()
+    except Exception as e:
         logger.warning(f"⚠️ AlphaVantage request failed: {e}")
         return []
 
-    if "Error Message" in resp or "Note" in resp:
-        logger.warning(f"⚠️ AlphaVantage error: {resp}")
+    if "Error Message" in data or "Note" in data:
+        logger.warning(f"⚠️ AlphaVantage error: {data}")
         return []
 
-    daily = resp.get("Time Series (Daily)", {})
+    daily = data.get("Time Series (Daily)", {})
     articles = []
-    for i, (date, data) in enumerate(list(daily.items())[:limit]):
-        text = f"{symbol} on {date}: Open {data['1. open']}, Close {data['4. close']}, Volume {data['5. volume']}"
+    for i, (date, metrics) in enumerate(list(daily.items())[:limit]):
+        text = f"{symbol} on {date}: Open {metrics['1. open']}, Close {metrics['4. close']}, Volume {metrics['5. volume']}"
         emb = get_embedding_with_fallback(text) if do_embed else None
         articles.append({
             "doc_id": f"{symbol}_{date}",
@@ -93,20 +97,22 @@ def search_web_helper(query: str, limit: int = 5, do_embed: bool = True):
 
     url = f"https://www.googleapis.com/customsearch/v1?q={query}&key={GOOGLE_KEY}&cx={CX_ID}"
     try:
-        resp = requests.get(url, timeout=10).json()
-    except requests.RequestException as e:
+        resp = requests.get(url, timeout=10)
+        resp.raise_for_status()
+        data = resp.json()
+    except Exception as e:
         logger.warning(f"⚠️ Google search request failed: {e}")
         return []
 
-    if "error" in resp:
-        logger.warning(f"⚠️ Google API error: {resp}")
+    if "error" in data:
+        logger.warning(f"⚠️ Google API error: {data}")
         return []
 
-    items = resp.get("items", [])
+    items = data.get("items", [])
     results = []
     for i, item in enumerate(items[:limit]):
-        title = item.get("title") or ""
-        snippet = item.get("snippet") or ""
+        title = item.get("title", "")
+        snippet = item.get("snippet", "")
         text = f"{title} {snippet}".strip()
         if not text:
             continue
@@ -124,6 +130,3 @@ def search_web_helper(query: str, limit: int = 5, do_embed: bool = True):
         upsert_embeddings(results, provider="google")
 
     return results
-
-
-

@@ -4,7 +4,7 @@ import { useRef, useState } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import ChatWindow from '@/components/ChatWindow'
 
-export default function ReportsChatPage({ onBack }) {
+export default function ReportsChatPage() {
   const chatRef = useRef(null)
   const [selectedReport, setSelectedReport] = useState(null)
 
@@ -27,21 +27,11 @@ export default function ReportsChatPage({ onBack }) {
     <div className="flex h-screen">
       {/* Chat Section (Left) */}
       <div className="flex-1 flex flex-col">
-        <ChatWindow ref={chatRef} onBack={onBack} />
+        <ChatWindow ref={chatRef} />
       </div>
 
       {/* Reports Section (Right) */}
       <div className="w-80 bg-gray-50 p-4 flex flex-col overflow-y-auto border-l border-gray-200">
-        {/* Back Button at the top */}
-        {onBack && (
-          <button
-            onClick={onBack}
-            className="flex items-center gap-2 mb-4 text-gray-700 hover:text-gray-900 font-medium"
-          >
-            <ArrowLeft className="w-4 h-4" /> Back
-          </button>
-        )}
-
         <h2 className="font-bold text-lg mb-4 text-gray-800">Reports</h2>
 
         <div className="space-y-2">

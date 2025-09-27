@@ -36,7 +36,7 @@ build/
 # -----------------------------
 .vscode/
 .idea/
-*.sublime-project
+*.sublime-projecta
 *.sublime-workspace
 
 # -----------------------------

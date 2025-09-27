@@ -5,7 +5,7 @@ export interface AuthData {
   role?: string;
 }
 
-export function saveAuth(data: AuthData) {
+export function saveAuth(data: AuthData, role: any) {
   if (typeof window === 'undefined') return;
   localStorage.setItem('ai_token', data.token);
   if (data.role) localStorage.setItem('ai_role', data.role);
